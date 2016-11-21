@@ -15,7 +15,12 @@
  **/
 package org.slf4j.impl;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.slf4j.helpers.MarkerIgnoringBase;
+import org.slf4j.model.AuditElement;
+import org.slf4j.model.MetricElement;
 
 /**
  * Logging class to write log statements to the Pz-Logger REST endpoint.
@@ -43,7 +48,8 @@ public class PiazzaLogger extends MarkerIgnoringBase {
 	}
 
 	/**
-	 * Initializes the logger component. This will scan the environment for the URL to Piazza Logger REST endpoint.
+	 * Initializes the logger component. This will scan the environment for the
+	 * URL to Piazza Logger REST endpoint.
 	 */
 	static void init() {
 		if (INITIALIZED) {
@@ -74,8 +80,22 @@ public class PiazzaLogger extends MarkerIgnoringBase {
 	}
 
 	public void trace(String format, Object... arguments) {
-		// TODO Auto-generated method stub
 
+		Map<String, Object> elementMap = new HashMap<String, Object>();
+		if (arguments != null) {
+			for (int i = 0; i < arguments.length; i++) {
+				Object obj = arguments[i];
+				
+				if( obj instanceof AuditElement && !elementMap.containsKey("AuditElement"))
+				{
+					elementMap.put("AuditElement", obj);
+				}
+				else if( obj instanceof MetricElement  && !elementMap.containsKey("MetricElement"))
+				{
+					elementMap.put("MetricElement", obj);
+				}
+			}
+		}
 	}
 
 	public void trace(String msg, Throwable t) {
@@ -197,5 +217,4 @@ public class PiazzaLogger extends MarkerIgnoringBase {
 		// TODO Auto-generated method stub
 
 	}
-
 }

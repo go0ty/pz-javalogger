@@ -32,16 +32,16 @@ public class StaticLoggerBinder implements LoggerFactoryBinder {
 	}
 
 	/**
-	 * Declaring the version of the SLF4J API this implementation is compiled against. The value of this field is
-	 * modified with each major release.
+	 * Declaring the version of the SLF4J API this implementation is compiled
+	 * against. The value of this field is modified with each major release.
 	 */
 	public static String REQUESTED_API_VERSION = "1.7";
 
 	private static final String factoryClassName = PiazzaLoggerFactory.class.getName();
 
 	/**
-	 * From SLF4J Implementation - The ILoggerFactory instance returned by the {@link #getLoggerFactory} method should
-	 * always be the same object
+	 * From SLF4J Implementation - The ILoggerFactory instance returned by the
+	 * {@link #getLoggerFactory} method should always be the same object
 	 */
 	private final ILoggerFactory loggerFactory;
 
