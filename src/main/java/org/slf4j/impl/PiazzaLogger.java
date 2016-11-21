@@ -55,8 +55,7 @@ public class PiazzaLogger extends MarkerIgnoringBase {
 	}
 
 	public boolean isTraceEnabled() {
-		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	public void trace(String msg) {
@@ -85,8 +84,7 @@ public class PiazzaLogger extends MarkerIgnoringBase {
 	}
 
 	public boolean isDebugEnabled() {
-		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	public void debug(String msg) {
@@ -115,8 +113,7 @@ public class PiazzaLogger extends MarkerIgnoringBase {
 	}
 
 	public boolean isInfoEnabled() {
-		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	public void info(String msg) {
@@ -144,8 +141,7 @@ public class PiazzaLogger extends MarkerIgnoringBase {
 	}
 
 	public boolean isWarnEnabled() {
-		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	public void warn(String msg) {
@@ -174,8 +170,7 @@ public class PiazzaLogger extends MarkerIgnoringBase {
 	}
 
 	public boolean isErrorEnabled() {
-		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	public void error(String msg) {
