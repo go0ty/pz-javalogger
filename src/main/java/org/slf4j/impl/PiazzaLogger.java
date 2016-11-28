@@ -15,9 +15,9 @@
  **/
 package org.slf4j.impl;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.joda.time.DateTime;
@@ -85,18 +85,16 @@ public class PiazzaLogger extends MarkerIgnoringBase {
 		return true;
 	}
 
-	public void trace(String msg) {
-		// TODO Auto-generated method stub
-		processLogs(Severity.DEBUG, msg, null);
+	public void trace(String format) {
+		processLogs(Severity.DEBUG, format, new Object());
 	}
 
 	public void trace(String format, Object arg) {
-		// TODO Auto-generated method stub
-
+		processLogs(Severity.DEBUG, format, arg);
 	}
 
 	public void trace(String format, Object arg1, Object arg2) {
-		// TODO Auto-generated method stub
+		processLogs(Severity.DEBUG, format, arg1, arg2);
 
 	}
 
@@ -104,38 +102,152 @@ public class PiazzaLogger extends MarkerIgnoringBase {
 		processLogs(Severity.DEBUG, format, arguments);
 	}
 
-	public void processLogs(Severity severity, String format, Object... arguments) {
+	public void trace(String format, Throwable t) {
+		processLogs(Severity.DEBUG, format, t);
+	}
 
-		Map<String, Object> elementMap = new HashMap<String, Object>();
-		if (arguments != null) {
-			for (int i = 0; i < arguments.length; i++) {
-				Object obj = arguments[i];
-				
-				if( obj instanceof AuditElement && !elementMap.containsKey("AuditElement"))
-				{
-					elementMap.put("AuditElement", obj);
-				}
-				else if( obj instanceof MetricElement  && !elementMap.containsKey("MetricElement"))
-				{
-					elementMap.put("MetricElement", obj);
-				}
+	public boolean isDebugEnabled() {
+		return true;
+	}
+
+	public void debug(String format) {
+		processLogs(Severity.DEBUG, format, new Object());
+	}
+
+	public void debug(String format, Object arg) {
+		processLogs(Severity.DEBUG, format, new Object());
+	}
+
+	public void debug(String format, Object arg1, Object arg2) {
+		processLogs(Severity.DEBUG, format, arg1, arg2);
+	}
+
+	public void debug(String format, Object... arguments) {
+		processLogs(Severity.DEBUG, format, arguments);
+	}
+
+	public void debug(String format, Throwable t) {
+		processLogs(Severity.DEBUG, format, t);
+	}
+
+	public boolean isInfoEnabled() {
+		return true;
+	}
+
+	public void info(String format) {
+		processLogs(Severity.INFORMATIONAL, format, new Object());
+	}
+
+	public void info(String format, Object arg) {
+		processLogs(Severity.INFORMATIONAL, format, arg);
+	}
+
+	public void info(String format, Object arg1, Object arg2) {
+		processLogs(Severity.INFORMATIONAL, format, arg1, arg2);
+	}
+
+	public void info(String format, Object... arguments) {
+		processLogs(Severity.INFORMATIONAL, format, arguments);
+	}
+
+	public void info(String format, Throwable t) {
+		processLogs(Severity.INFORMATIONAL, format, t);
+	}
+
+	public boolean isWarnEnabled() {
+		return true;
+	}
+
+	public void warn(String format) {
+		processLogs(Severity.WARNING, format, new Object());
+	}
+
+	public void warn(String format, Object arg) {
+		processLogs(Severity.WARNING, format, arg);
+	}
+
+	public void warn(String format, Object... arguments) {
+		processLogs(Severity.WARNING, format, arguments);
+	}
+
+	public void warn(String format, Object arg1, Object arg2) {
+		processLogs(Severity.WARNING, format, arg1, arg2);
+	}
+
+	public void warn(String format, Throwable t) {
+		processLogs(Severity.WARNING, format, t);
+	}
+
+	public boolean isErrorEnabled() {
+		return true;
+	}
+
+	public void error(String format) {
+		processLogs(Severity.ERROR, format, new Object());
+	}
+
+	public void error(String format, Object arg) {
+		processLogs(Severity.ERROR, format, arg);
+	}
+
+	public void error(String format, Object arg1, Object arg2) {
+		processLogs(Severity.ERROR, format, arg1, arg2);
+	}
+
+	public void error(String format, Object... arguments) {
+		processLogs(Severity.ERROR, format, arguments);
+	}
+
+	public void error(String format, Throwable t) {
+		processLogs(Severity.ERROR, format, t);
+	}
+	
+	/**
+	 * 
+	 * @param severity
+	 *            Severity codes per syslog rfc-5424 standard
+	 * @param message
+	 *            String message of the log
+	 * @param arguments
+	 *            Optional log arguments, audit / metric / exception types
+	 */
+	public void processLogs(Severity severity, String message, Object... arguments) {
+		LoggerPayload payload = new LoggerPayload();
+		HashSet<String> argumentSet = new HashSet<String>();
+
+		for (int i = 0; i < arguments.length; i++) {
+			Object obj = arguments[i];
+
+			if (obj instanceof AuditElement && !argumentSet.contains("auditElement")) {
+				argumentSet.add("AuditElement");
+				payload.setAuditData((AuditElement) obj);
+			} else if (obj instanceof MetricElement && !argumentSet.contains("metricElement")) {
+				argumentSet.add("MetricElement");
+				payload.setMetricData((MetricElement) obj);
+			} else if (obj instanceof Throwable && !argumentSet.contains("exception")) {
+				argumentSet.add("exception");
+				Throwable exception = (Throwable) obj;
+				String exceptionStackTrace = ExceptionUtils.getStackTrace(exception);
+				String.format("%s - %s", message, exceptionStackTrace);
 			}
 		}
-		
+
+		sendLogs(payload, message, severity);
 	}
+	
 	/**
 	 * Sends the logger payload to pz-logger
 	 * 
 	 * @param loggerPayload payload
 	 * 
 	 */
-	private void sendLogs(LoggerPayload loggerPayload, String logMessage, Severity severity) {
+	private void sendLogs(LoggerPayload payload, String logMessage, Severity severity) {
 		
 		// Setting generic fields on logger payload
-		loggerPayload.setSeverity(severity);
-		loggerPayload.setMessage(logMessage);
-		loggerPayload.setMessageId(logMessage.hashCode());
-		loggerPayload.setTimestamp(new DateTime());
+		payload.setSeverity(severity);
+		payload.setMessage(logMessage);
+		payload.setMessageId(logMessage.hashCode());
+		payload.setTimestamp(new DateTime());
 
 		try {
 			HttpHeaders headers = new HttpHeaders();
@@ -144,7 +256,7 @@ public class PiazzaLogger extends MarkerIgnoringBase {
 			// Log to console if requested
 			try {
 				if (logToConsole.booleanValue()) {
-					System.out.println(loggerPayload.toString());
+					System.out.println(payload.toString());
 				}
 			} catch (Exception exception) { /* Do nothing. */
 				System.out.println(String.format("%s: %s", "Application property is not set", exception));
@@ -152,128 +264,9 @@ public class PiazzaLogger extends MarkerIgnoringBase {
 
 			// post to pz-logger
 			String url = String.format("%s/%s", PZ_LOGGER_URL, PZ_LOGGER_ENDPOINT);
-			restTemplate.postForEntity(url, new HttpEntity<LoggerPayload>(loggerPayload, headers), String.class);
+			restTemplate.postForEntity(url, new HttpEntity<LoggerPayload>(payload, headers), String.class);
 		} catch (Exception exception) {
 			System.out.println(String.format("%s: %s", "PiazzaLogger could not log", exception));
 		}
-	}
-
-	public void trace(String msg, Throwable t) {
-		// TODO Auto-generated method stub
-	}
-
-	public boolean isDebugEnabled() {
-		return true;
-	}
-
-	public void debug(String msg) {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void debug(String format, Object arg) {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void debug(String format, Object arg1, Object arg2) {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void debug(String format, Object... arguments) {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void debug(String msg, Throwable t) {
-		// TODO Auto-generated method stub
-
-	}
-
-	public boolean isInfoEnabled() {
-		return true;
-	}
-
-	public void info(String msg) {
-
-	}
-
-	public void info(String format, Object arg) {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void info(String format, Object arg1, Object arg2) {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void info(String format, Object... arguments) {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void info(String msg, Throwable t) {
-		// TODO Auto-generated method stub
-
-	}
-
-	public boolean isWarnEnabled() {
-		return true;
-	}
-
-	public void warn(String msg) {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void warn(String format, Object arg) {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void warn(String format, Object... arguments) {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void warn(String format, Object arg1, Object arg2) {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void warn(String msg, Throwable t) {
-		// TODO Auto-generated method stub
-
-	}
-
-	public boolean isErrorEnabled() {
-		return true;
-	}
-
-	public void error(String msg) {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void error(String format, Object arg) {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void error(String format, Object arg1, Object arg2) {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void error(String format, Object... arguments) {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void error(String msg, Throwable t) {
-		// TODO Auto-generated method stub
-
 	}
 }
