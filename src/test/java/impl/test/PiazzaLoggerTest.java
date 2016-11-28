@@ -16,7 +16,6 @@
 package impl.test;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.impl.PiazzaLoggerFactory;
@@ -51,7 +50,6 @@ public class PiazzaLoggerTest {
 	/**
 	 * Tests the logger statements in the logger, with various severities.
 	 */
-	@Ignore
 	@Test
 	public void testLoggerStatements() {
 		// Test various log statements and severities
