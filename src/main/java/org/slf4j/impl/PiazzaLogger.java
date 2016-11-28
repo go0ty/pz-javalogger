@@ -22,15 +22,16 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.joda.time.DateTime;
 import org.slf4j.helpers.MarkerIgnoringBase;
-import org.slf4j.model.AuditElement;
-import org.slf4j.model.LoggerPayload;
-import org.slf4j.model.MetricElement;
-import org.slf4j.model.Severity;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
+
+import model.logger.AuditElement;
+import model.logger.LoggerPayload;
+import model.logger.MetricElement;
+import model.logger.Severity;
 
 
 /**
@@ -229,6 +230,7 @@ public class PiazzaLogger extends MarkerIgnoringBase {
 				argumentSet.add("exception");
 				Throwable exception = (Throwable) obj;
 				String exceptionStackTrace = ExceptionUtils.getStackTrace(exception);
+				
 				System.out.println(exceptionStackTrace);
 				message = String.format("%s - %s", message, exceptionStackTrace);
 			}

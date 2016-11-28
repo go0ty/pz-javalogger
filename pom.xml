@@ -91,6 +91,19 @@
 			<scope>test</scope>
 		</dependency>
 
+		<!-- dependency>
+		  <groupId>org.venice.piazza</groupId>
+		  <artifactId>pz-jobcommon</artifactId>
+		  <version>Sprint06-235-gd83c212</version>
+		</dependency-->
+	
+		<dependency>
+			<groupId>org.venice.piazza</groupId>
+			<artifactId>pz-jobcommon</artifactId>
+			<version>LATEST</version>
+		</dependency>
+
+	
 	</dependencies>
 
 	<packaging>jar</packaging>
