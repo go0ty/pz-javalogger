@@ -8,7 +8,7 @@ popd > /dev/null
 source $root/ci/vars.sh
 
 # Path to output JAR
-src=$root/target/pz-javalogger-LATEST.jar
+src=$root/target/pz-javalogger-*.jar
 
 # Build Spring-boot JAR
 [ -f $src ] || mvn clean package -U
