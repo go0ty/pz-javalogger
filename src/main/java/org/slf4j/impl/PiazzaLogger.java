@@ -33,7 +33,6 @@ import model.logger.LoggerPayload;
 import model.logger.MetricElement;
 import model.logger.Severity;
 
-
 /**
  * Logging class to write log statements to the Pz-Logger REST endpoint.
  * 
@@ -42,11 +41,11 @@ import model.logger.Severity;
  */
 public class PiazzaLogger extends MarkerIgnoringBase {
 	private static final long serialVersionUID = -8501125831479851574L;
-	
+
 	private Boolean logToConsole = false;
-	
+
 	private static RestTemplate restTemplate = new RestTemplate();
-	
+
 	/**
 	 * The URL to Piazza Logger, where all messages will be routed.
 	 */
@@ -66,8 +65,7 @@ public class PiazzaLogger extends MarkerIgnoringBase {
 	}
 
 	/**
-	 * Initializes the logger component. This will scan the environment for the
-	 * URL to Piazza Logger REST endpoint.
+	 * Initializes the logger component. This will scan the environment for the URL to Piazza Logger REST endpoint.
 	 */
 	static void init() {
 		if (INITIALIZED) {
@@ -76,7 +74,7 @@ public class PiazzaLogger extends MarkerIgnoringBase {
 		INITIALIZED = true;
 		// Scan the environment for the URL to Pz-Logger
 		PZ_LOGGER_URL = System.getenv("logger.url");
-		
+
 		System.out.println(String.format("PiazzaLogger initialized for service %s, url: %s", "serviceName", PZ_LOGGER_URL));
 		HttpClient httpClient = HttpClientBuilder.create().setMaxConnTotal(7500).setMaxConnPerRoute(4000).build();
 		restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(httpClient));
@@ -202,7 +200,7 @@ public class PiazzaLogger extends MarkerIgnoringBase {
 	public void error(String format, Throwable t) {
 		processLogs(Severity.ERROR, format, t);
 	}
-	
+
 	/**
 	 * 
 	 * @param severity
@@ -230,7 +228,7 @@ public class PiazzaLogger extends MarkerIgnoringBase {
 				argumentSet.add("exception");
 				Throwable exception = (Throwable) obj;
 				String exceptionStackTrace = ExceptionUtils.getStackTrace(exception);
-				
+
 				System.out.println(exceptionStackTrace);
 				message = String.format("%s - %s", message, exceptionStackTrace);
 			}
@@ -238,15 +236,16 @@ public class PiazzaLogger extends MarkerIgnoringBase {
 
 		sendLogs(payload, message, severity);
 	}
-	
+
 	/**
 	 * Sends the logger payload to pz-logger
 	 * 
-	 * @param loggerPayload payload
+	 * @param loggerPayload
+	 *            payload
 	 * 
 	 */
 	private void sendLogs(LoggerPayload payload, String logMessage, Severity severity) {
-		
+
 		// Setting generic fields on logger payload
 		payload.setSeverity(severity);
 		payload.setMessage(logMessage);
@@ -267,8 +266,12 @@ public class PiazzaLogger extends MarkerIgnoringBase {
 			}
 
 			// post to pz-logger
-			String url = String.format("%s/%s", PZ_LOGGER_URL, PZ_LOGGER_ENDPOINT);
-			restTemplate.postForEntity(url, new HttpEntity<LoggerPayload>(payload, headers), String.class);
+			if (PZ_LOGGER_URL != null) {
+				String url = String.format("%s/%s", PZ_LOGGER_URL, PZ_LOGGER_ENDPOINT);
+				restTemplate.postForEntity(url, new HttpEntity<LoggerPayload>(payload, headers), String.class);
+			} else {
+				System.out.println("Cannot log to Pz-Logger because no 'logger.url' property was found in the environment.");
+			}
 		} catch (Exception exception) {
 			System.out.println(String.format("%s: %s", "PiazzaLogger could not log", exception));
 		}
