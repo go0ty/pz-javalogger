@@ -211,7 +211,8 @@ public class PiazzaLogger extends MarkerIgnoringBase {
 	 * @param arguments
 	 *            Optional log arguments, audit / metric / exception types
 	 */
-	public void processLogs(Severity severity, String message, Object... arguments) {
+	public void processLogs(Severity severity, String format, Object... arguments) {
+		String message = format;
 		LoggerPayload payload = new LoggerPayload();
 		HashSet<String> argumentSet = new HashSet<String>();
 
@@ -228,7 +229,8 @@ public class PiazzaLogger extends MarkerIgnoringBase {
 				argumentSet.add("exception");
 				Throwable exception = (Throwable) obj;
 				String exceptionStackTrace = ExceptionUtils.getStackTrace(exception);
-				String.format("%s - %s", message, exceptionStackTrace);
+				System.out.println(exceptionStackTrace);
+				message = String.format("%s - %s", message, exceptionStackTrace);
 			}
 		}
 
